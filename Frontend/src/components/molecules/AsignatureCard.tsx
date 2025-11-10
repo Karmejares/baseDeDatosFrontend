@@ -1,5 +1,6 @@
 "use client";
 
+import React, { useState } from "react";
 import {
   Avatar,
   Button,
@@ -9,9 +10,10 @@ import {
   CardHeader,
   Collapse,
   Typography,
+  TextField,
+  Alert,
+  Box,
 } from "@mui/material";
-import { title } from "process";
-import React from "react";
 
 interface AsignatureCardProps {
   name: string;
@@ -28,25 +30,44 @@ export const AsignatureCard = ({
   profesor,
   totalPoints,
 }: AsignatureCardProps) => {
-  const [expanded, setExpanded] = React.useState(false);
+  const [expanded, setExpanded] = useState(false);
+  const [file, setFile] = useState<File | null>(null);
+  const [comment, setComment] = useState("");
+  const [uploaded, setUploaded] = useState(false);
+  const [grade, setGrade] = useState<number | null>(null);
+
   const handleExpandClick = () => {
     setExpanded(!expanded);
   };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      setFile(e.target.files[0]);
+    }
+  };
+
+  const handleSubmit = () => {
+    if (file && comment.trim() !== "") {
+      setUploaded(true);
+      setGrade(5); // Nota automática
+    } else {
+      alert("Por favor, sube un archivo y deja un comentario.");
+    }
+  };
+
   return (
     <Card
       sx={{
         display: "flex",
-        justifyContent: "start",
-        alignItems: "start",
         flexDirection: "column",
         maxWidth: "100%",
         padding: 2,
+        marginBottom: 2,
       }}
     >
       <CardHeader
         title={name}
         subheader={`Profesor: ${profesor}`}
-        slotProps={{ title: { fontWeight: "bold", fontSize: "1.5rem" } }}
         avatar={
           <Avatar
             src={image}
@@ -56,31 +77,60 @@ export const AsignatureCard = ({
               height: 80,
               border: "2px solid #1976d2",
             }}
-          ></Avatar>
+          />
         }
       />
+
       <CardContent>
         <Typography sx={{ fontWeight: "bold" }}>
           Total Points: {totalPoints}
         </Typography>
       </CardContent>
+
       <CardActions>
         <Button variant="outlined" color="primary" onClick={handleExpandClick}>
           Mirar Asignatura
         </Button>
       </CardActions>
+
       <Collapse in={expanded} timeout="auto" unmountOnExit>
         <CardContent>
-          <Typography>Entregables:</Typography>
-          <Typography variant="body2" color="text.secondary">
-            - Entregable 1: Descripción del entregable 1.
+          <Typography variant="h6" gutterBottom>
+            Entregables:
           </Typography>
-          <Typography variant="body2" color="text.secondary">
-            - Entregable 2: Descripción del entregable 2.
+
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+            - Entregable 1: Sube tu archivo y deja un comentario.
           </Typography>
-          <Typography variant="body2" color="text.secondary">
-            - Entregable 3: Descripción del entregable 3.
-          </Typography>
+
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+            <TextField
+              label="Comentario"
+              multiline
+              rows={3}
+              value={comment}
+              onChange={(e) => setComment(e.target.value)}
+              variant="outlined"
+              fullWidth
+            />
+
+            <Button variant="contained" component="label" color="primary">
+              Subir archivo
+              <input type="file" hidden onChange={handleFileChange} />
+            </Button>
+
+            <Button variant="outlined" color="success" onClick={handleSubmit}>
+              Enviar entrega
+            </Button>
+
+            {uploaded && (
+              <>
+                <Alert severity="success">
+                  Archivo subido correctamente. Nota asignada: {grade}
+                </Alert>
+              </>
+            )}
+          </Box>
         </CardContent>
       </Collapse>
     </Card>

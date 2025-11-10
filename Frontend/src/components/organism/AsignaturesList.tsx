@@ -11,7 +11,7 @@ interface Asignature {
 const AsignarutesList: Asignature[] = [
   {
     name: "Matemáticas",
-    profesor: "Ander Marin",
+    profesor: "Andres Marin",
     image: "/OIP.jpg",
     totalPoints: 5,
   },
